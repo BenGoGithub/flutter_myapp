@@ -46,19 +46,22 @@ class MyHomePage extends StatelessWidget {
 
     return Scaffold(
       //scaffold = échafaudage --chaque méthode build doit renvoyer un widget/une arborescence de widget
-      body: Column(
-        //l'un des principaux widget de mise en page. accepte un nb illimité d'enfants et les place dans une colonne de haut en bas
-        children: [
-          Text('TEEEEEEEEEEEEEEEEEEEEEEEEEEEST'),
-          //pour faire apparaître du texte
-          BigCard(pairWords: pairWords),
-
-          ElevatedButton(
-              onPressed: () {
-                appState.getNext();
-              },
-              child: Text('Clic'))
-        ],
+      body: Center(
+        child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+          //l'un des principaux widget de mise en page. accepte un nb illimité d'enfants et les place dans une colonne de haut en bas
+          children: [
+            Text('GOGOGOGOGO'),
+            //pour faire apparaître du texte
+            BigCard(pairWords: pairWords),
+            SizedBox(height: 10),
+            ElevatedButton(
+                onPressed: () {
+                  appState.getNext();
+                },
+                child: Text('Clic'))
+          ],
+        ),
       ),
     );
   }
@@ -83,7 +86,7 @@ class BigCard extends StatelessWidget {
     return Card(
       color: theme.colorScheme.primary,
       child: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.all(40.0),
         child: Text(pairWords.asUpperCase, style: style,),
       ),
     );
