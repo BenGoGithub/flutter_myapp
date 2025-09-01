@@ -34,6 +34,16 @@ class MyAppState extends ChangeNotifier {
     current = WordPair.random();
     notifyListeners(); //méthode de changeNotifier qui garantit que toute personne surveillant cette classe est informée
   }
+  var favorites = <WordPair>[];
+
+  void toggleFavorite() {
+    if (favorites.contains(current)) {
+      favorites.remove(current);
+    } else {
+      favorites.add(current);
+    }
+    notifyListeners();
+  }
 }
 
 class MyHomePage extends StatelessWidget {
@@ -43,6 +53,13 @@ class MyHomePage extends StatelessWidget {
     var appState = context.watch<
         MyAppState>(); //la méthode watch permet à MyHoePage de suivre les modif de l'état actuel de l'application
     var pairWords = appState.current;
+
+    IconData icon;
+    if (appState.favorites.contains(pairWords)) {
+      icon = Icons.favorite;
+    } else {
+      icon = Icons.favorite_border;
+    }
 
     return Scaffold(
       //scaffold = échafaudage --chaque méthode build doit renvoyer un widget/une arborescence de widget
@@ -55,11 +72,25 @@ class MyHomePage extends StatelessWidget {
             //pour faire apparaître du texte
             BigCard(pairWords: pairWords),
             SizedBox(height: 10),
-            ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Clic'))
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ElevatedButton.icon(
+                  onPressed: () {
+                    appState.toggleFavorite();
+                  },
+                  icon: Icon(icon),
+                  label: Text('Like'),
+                ),
+                SizedBox(width: 10),
+
+                ElevatedButton(
+                    onPressed: () {
+                      appState.getNext();
+                    },
+                    child: Text('Clic')),
+              ],
+            )
           ],
         ),
       ),
