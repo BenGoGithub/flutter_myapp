@@ -46,57 +46,126 @@ class MyAppState extends ChangeNotifier {
   }
 }
 
-class MyHomePage extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+
+  var selectedIndex = 0;
+
   @override
   Widget build(BuildContext context) {
-    //méthode automatiquement appelée dès que les conditions du widget changent
-    var appState = context.watch<
-        MyAppState>(); //la méthode watch permet à MyHoePage de suivre les modif de l'état actuel de l'application
-    var pairWords = appState.current;
+    Widget page;
+    switch (selectedIndex) {
+      case 0:
+        page = GeneratorPage();
+        break;
+      case 1:
+        page = Placeholder();
+        break;
+      default:
+        throw UnimplementedError('no widget for $selectedIndex');
+    }
+    // Scaffold fournit la structure de base d'une page (appbar, body, drawer, etc.)
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Scaffold(
+          // Le corps de la page contient une rangée horizontale de widgets
+          body: Row(
+            children: [
+              // SafeArea évite que le contenu soit masqué par des zones système (notch, barre d'état)
+              SafeArea(
+                child: NavigationRail(
+                  extended: constraints.maxWidth >= 600, //  étendu, barre étroite avec icônes seulement
+                  destinations: [
+                    // NavigationRailDestination représente une option dans la barre de navigation latérale
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home), // Icône pour la destination "Home"
+                      label: Text('Home'),     // Label texte qui s'affiche si extended = true
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.favorite),
+                      label: Text('Favorites'),
+                    ),
+                  ],
+                  selectedIndex: selectedIndex,    // Index actuellement sélectionné dans la barre de navigation
+                  onDestinationSelected: (value) {
+                    // Callback appelé lorsque l'utilisateur sélectionne une destination
+                    setState(() {
+                      selectedIndex = value;
+                    });
+                  },
+                ),
+              ),
+              // Expanded prend tout l'espace horizontal restant dans la Row
+              Expanded(
+                child: Container(
+                  // Couleur de fond provenant du thème actuel, zone principale de contenu
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  // Contenu principal affiché ici : l'affichage de la page générateur
+                  child: page,
+                ),
+              ),
+            ],
+          ),
+        );
+      }
+    );
+  }
+}
+
+class GeneratorPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    // Récupère l'état partagé de l'application via un provider (context.watch)
+    var appState = context.watch<MyAppState>();
+    var pairWords = appState.current; // Prenez un élément courant à afficher
 
     IconData icon;
+    // Choix de l'icône selon que l'élément est dans la liste des favoris ou non
     if (appState.favorites.contains(pairWords)) {
-      icon = Icons.favorite;
+      icon = Icons.favorite; // Icône coeur rempli si favori
     } else {
-      icon = Icons.favorite_border;
+      icon = Icons.favorite_border; // Coeur vide sinon
     }
 
-    return Scaffold(
-      //scaffold = échafaudage --chaque méthode build doit renvoyer un widget/une arborescence de widget
-      body: Center(
-        child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-          //l'un des principaux widget de mise en page. accepte un nb illimité d'enfants et les place dans une colonne de haut en bas
-          children: [
-            Text('GOGOGOGOGO'),
-            //pour faire apparaître du texte
-            BigCard(pairWords: pairWords),
-            SizedBox(height: 10),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ElevatedButton.icon(
-                  onPressed: () {
-                    appState.toggleFavorite();
-                  },
-                  icon: Icon(icon),
-                  label: Text('Like'),
-                ),
-                SizedBox(width: 10),
-
-                ElevatedButton(
-                    onPressed: () {
-                      appState.getNext();
-                    },
-                    child: Text('Clic')),
-              ],
-            )
-          ],
-        ),
+    return Center(
+      // Centre le contenu dans la zone disponible
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center, // Centre verticalement les enfants
+        children: [
+          BigCard(pairWords: pairWords), // Widget personnalisé affichant l'élément pair
+          SizedBox(height: 10), // Espace vertical entre les widgets
+          Row(
+            mainAxisSize: MainAxisSize.min, // Ligne avec taille minimale (autant que contenu)
+            children: [
+              ElevatedButton.icon(
+                // Bouton avec icône et texte
+                onPressed: () {
+                  // Action au clic : bascule entre favori ou non
+                  appState.toggleFavorite();
+                },
+                icon: Icon(icon), // Icone coeur (plein ou vide)
+                label: Text('Like'), // Texte du bouton
+              ),
+              SizedBox(width: 10), // Espace horizontal entre boutons
+              ElevatedButton(
+                onPressed: () {
+                  // Action au clic : passe à l'élément suivant
+                  appState.getNext();
+                },
+                child: Text('Next'), // Texte du bouton
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
+
 
 class BigCard extends StatelessWidget {
   const BigCard({
